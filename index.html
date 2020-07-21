@@ -8,13 +8,10 @@
 	<canvas style="margin-top:30px;display: block ;padding-left: 0; padding-right: 0; margin-left: auto; margin-right: auto;" id="myCanvas" width="520" height="520">
 		
 	</canvas>
-    <br>
-    Ultimate Alien Shoot Out
+	<br>
+	ULTIMATE ALIEN SHOOT OUT
 	<script>
-		// Made with love by Rishabh Jain !
-		// Correcting the drawobject
-		// Adding Bullets
-
+		
 		var canvas = document.getElementById("myCanvas");
 		var ctx = canvas.getContext("2d");
 
@@ -32,11 +29,45 @@
 		var WIDTH = 520;
 		var HEIGHT = 520;
 
+		var fires = [] ;	
+		var lastFireAt = new Date().getTime();
+		var fireImage = new Image(); fireImage.src = ["https://i.imgur.com/pPvOuhq.png"];
+		function addFire(x,y){
+			var fire = {};
+			fire.images = [fireImage];
+			fire.x = x;
+			fire.y = y;
+			fire.width = 10;
+			fire.height = 10;
+			fire.speedX = 0;
+			fire.speedY = -7;
+			fire.active = true;			
+			fire.move = function(){
+				this.y += this.speedY; 
+				if( this.y <= 0 ){
+					this.active = false;
+				}
+			}
+			fires.push(fire);
+		}
+
+		function drawAndMoveFires(){
+			var temp = [];
+			for(var i=0;i<fires.length;i++){
+				fires[i].move();
+				drawObject(fires[i]);
+				// Only add active bullets				
+				if(fires[i].active){
+					temp.push(fires[i]);
+				}
+			}
+			fires = temp;
+		}
+
 		var bullets = [] ;	
 		var bulletImage1 = new Image(); bulletImage1.src = ["https://i.imgur.com/dM81aDs.gif"];
 		var bulletImage2 = new Image(); bulletImage2.src = ["https://i.imgur.com/NyaUjNn.gif"];
 
-		
 		function addBullet(x,y){
 			var bullet = {};
 			bullet.images = [bulletImage1,bulletImage2];
@@ -87,11 +118,10 @@
 			shipImages.push(shipImage);
 		}
 
-			
+
 		for(var i=0;i<5;i++){
 			var ship = {};
 			ship.images = shipImages;
-
 			ship.x = (Math.random()*1000000)%WIDTH;
 			ship.y = 0;
 			ship.width = 80;
@@ -126,7 +156,6 @@
 		}
 
 
-
 		var alienImages = [];
 		var alienImageUrls = ["https://i.imgur.com/tvJOu59.png","https://i.imgur.com/e1pkJRF.png","https://i.imgur.com/aRumf1r.png","https://i.imgur.com/jjOPpWL.png","https://i.imgur.com/hsdEpsM.png","https://i.imgur.com/u5eNyl8.png"];
 		 
@@ -136,14 +165,20 @@
 			alienImages.push(image);
 		}
 
-		var alien = {};	alien.images = alienImages ; alien.width = 100; alien.height = 100; alien.x=300; alien.y=300; alien.speed = 7;
+		var alien = {};	alien.images = alienImages ; alien.width = 100; alien.height = 100; alien.x=300; alien.y=HEIGHT-100; alien.speed = 7;
 
 		var keyMap = {};
 		keyMap[38]	= { name :"up",		active:false , onactive: function() { alien.y-=alien.speed; } };
 		keyMap[40]	= { name :"down",	active:false , onactive: function() { alien.y+=alien.speed; } };
 		keyMap[37]	= { name :"left",	active:false , onactive: function() { alien.x-=alien.speed; } };
 		keyMap[39]	= { name :"right",	active:false , onactive: function() { alien.x+=alien.speed; } };
-		keyMap[32]	= { name :"space", 	active:false , onactive: function() { fireBullet(); } };
+		keyMap[32]	= { name :"space", 	active:false , onactive: function() { 
+																				if(new Date().getTime() - lastFireAt>300) { 
+																					lastFireAt= new Date().getTime() ; 
+																					addFire(alien.x,alien.y-30); 
+																				} 
+																			}
+		};
 
 		//step 2
 		function handleKey(event, status) {
@@ -153,7 +188,25 @@
 			}
 		}
 
+
+        // Play music on loop 
+        // Music credits to Alan Walker ;)
+    	var isPlayingMusic = false; 
+        function playMusicNow(){
+        	isPlayingMusic = true;
+	        var audio = new Audio('https://nhacchuong68.com/wp-content/uploads/2019/07/Alan-Walker-Faded-Instrumental-Version.mp3');
+	        audio.addEventListener('ended', function () {
+	            this.currentTime = 0;
+	            this.play();
+	        }, false);
+
+	        audio.play();
+        }
+
+
+
 		document.addEventListener("keydown", function(event) {
+			if(!isPlayingMusic) playMusicNow();
 		    handleKey(event, true);
 		});
 
@@ -188,6 +241,24 @@
 			}
 
 			drawAndMoveBullets();
+			drawAndMoveFires();
+
+			for(var i=0;i<fires.length;i++){
+				var fire = fires[i]; 
+				for(var j=0; j<ships.length;j++){
+					var ship = ships[j];
+					var x1x2 = (fire.x-ship.x)*(fire.x-ship.x);	
+					var y1y2 = (fire.y-ship.y)*(fire.y-ship.y);	
+					var distance = Math.sqrt( x1x2 + y1y2 ) ;
+					if(distance<ship.width-20){
+						ship.x = (Math.random()*10000000)%WIDTH;
+						ship.speedX = 3+Math.random()*4;
+						ship.y = 0;
+						fire.active = false;
+					}
+					console.log(distance);
+				}
+			}
 		}
 
 		setInterval(update,50);
