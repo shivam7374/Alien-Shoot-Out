@@ -4,14 +4,26 @@
 </head>
 
 <body>
-
-	<canvas style="margin-top:30px;display: block ;padding-left: 0; padding-right: 0; margin-left: auto; margin-right: auto;" id="myCanvas" width="520" height="520">
-		
+	<canvas style="margin-top:30px;
+				   display: block ;
+				   padding-left: 0; 
+				   padding-right: 0; 
+				   margin-left: auto; 
+				   margin-right: auto;" 
+			id="myCanvas" 
+			width="520" 
+			height="520">	
 	</canvas>
+	<h1 id="gameover">
+	</h1>
+	<h1 style="display: inline-flex;">Score-: <div id="score"></div></h1>
 	<br>
 	ULTIMATE ALIEN SHOOT OUT
 	<script>
-		
+		var GameOver=document.getElementById('gameover')
+		var score=document.getElementById('score')
+		var scorenow=0;
+		score.innerHTML=scorenow
 		var canvas = document.getElementById("myCanvas");
 		var ctx = canvas.getContext("2d");
 
@@ -86,7 +98,7 @@
 			}
 			bullets.push(bullet);
 		}
-
+		
 		function drawAndMoveBullets(){
 			var temp = [];
 			for(var i=0;i<bullets.length;i++){
@@ -251,6 +263,8 @@
 					var y1y2 = (fire.y-ship.y)*(fire.y-ship.y);	
 					var distance = Math.sqrt( x1x2 + y1y2 ) ;
 					if(distance<ship.width-20){
+						scorenow+=10;
+						score.innerHTML=scorenow
 						ship.x = (Math.random()*10000000)%WIDTH;
 						ship.speedX = 3+Math.random()*4;
 						ship.y = 0;
@@ -259,9 +273,37 @@
 					console.log(distance);
 				}
 			}
+
+
+
+			for(var i=0;i<bullets.length;i++){
+					var bullet = bullets[i]; 
+					var x1x2 = (bullet.x-alien.x)*(bullet.x-alien.x);	
+					var y1y2 = (bullet.y-alien.y)*(bullet.y-alien.y);	
+					var distance = Math.sqrt( x1x2 + y1y2 ) ;
+					if(distance<=(alien.width/2)){
+						bullet.active=true;
+						clearInterval(myVar);
+						// gameover();
+						GameOver.innerHTML=`"Game Over !!"
+						<input type="button" value="Restart Game" onClick="document.location.reload(true)">`
+						
+					}
+					console.log(distance);
+			}
+
+
 		}
 
-		setInterval(update,50);
+		var myVar=setInterval(update,50);
+
+		function gameover() 
+		{
+				alert("GAME OVER!"+"YOUR SCORE IS - "+scorenow);
+				scorenow=0;
+				score.innerHTML=scorenow
+				bullet.active = false;
+		}
 
 	</script>
 	
