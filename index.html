@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas style="width: 520px; 
+    height: 520px; 
+    margin-top: 50px; 
+    display: block ;padding-left: 0; padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;" id="myCanvas"></canvas>
+    Shivam Singla Ultimate BOSS
+    <script>
+        var canvas=document.getElementById('myCanvas')
+        var ctx=canvas.getContext('2d')
+
+        var alienImages = [];
+		var alienImageUrls = ["https://i.imgur.com/tvJOu59.png","https://i.imgur.com/e1pkJRF.png","https://i.imgur.com/aRumf1r.png","https://i.imgur.com/jjOPpWL.png","https://i.imgur.com/hsdEpsM.png","https://i.imgur.com/u5eNyl8.png"];
+		 
+		for( var i=0; i<alienImageUrls.length ; i++ ){
+			var image = new Image();
+			image.src = alienImageUrls[i];
+			alienImages.push(image);
+		}
+
+		var alien = {};
+		alien.images = alienImages ;
+		alien.width = 40;
+		alien.height = 40;
+		alien.x=100;
+		alien.y=20;
+		alien.speed = 7;
+        function drawObject(object){
+			//Find current index of image to be used.
+			var currentImageIndex = counter%object.images.length;
+			//Access image from array of images
+			var currentImage = object.images[currentImageIndex];
+			//Draw of canvas
+			ctx.drawImage(currentImage,object.x,object.y,object.width,object.height);
+		}
+
+        var keyMap = {};
+		keyMap[38]	= { name :"up",		active:false , onactive: function() { alien.y-=alien.speed; } };
+		keyMap[40]	= { name :"down",	active:false , onactive: function() { alien.y+=alien.speed; } };
+		keyMap[37]	= { name :"left",	active:false , onactive: function() { alien.x-=alien.speed; } };
+		keyMap[39]	= { name :"right",	active:false , onactive: function() { alien.x+=alien.speed; } };
+		keyMap[32]	= { name :"space", 	active:false , onactive: function() { fireBullet(); } };
+
+
+
+        function handleKey(event, status) {
+			var currentController = keyMap[event.keyCode];
+		    console.log(status);
+			if(!!currentController){
+				currentController.active = status;
+			}
+		}
+
+		document.addEventListener("keydown", function(event) {
+		    handleKey(event, true);
+		});
+
+		document.addEventListener("keyup", function(event) {
+		    handleKey(event, false);
+		});
+
+
+        var counter = 0;
+		function update(){
+			counter++;
+            ctx.fillStyle = "#000000";
+			ctx.fillRect(0, 0, 520, 520);
+            // ctx.drawImage(alienImage,300,300,100,100)
+
+            //Hovering effect
+			alien.x += -2+Math.random()*4;
+			alien.y += -2+Math.random()*4;
+
+
+            for(var key in keyMap){
+				var currentController = keyMap[key];
+				if( currentController.active){
+					currentController.onactive();
+				}
+				console.log(JSON.stringify(keyMap))
+			}
+
+
+            drawObject(alien);
+        }
+
+        setInterval(update,50)
+    </script>
+</body>
+</html>
